@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Civil Service Form No. 6 - Application for Leave</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .form-border { border: 2px solid #1e293b; }
+        .form-border-b { border-bottom: 2px solid #1e293b; }
+        .form-border-r { border-right: 2px solid #1e293b; }
+        .form-border-t { border-top: 2px solid #1e293b; }
+        .form-border-l { border-left: 2px solid #1e293b; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-900 h-full flex flex-col justify-between">
+
+    <header class="bg-blue-900 text-white shadow-md py-4 px-6">
+        <div class="max-w-5xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-white/10 p-2 rounded-lg">
+                    <i class="fa-solid fa-file-invoice text-2xl text-amber-400"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg tracking-wide">CSC FORM NO. 6 PORTAL</h1>
+                    <p class="text-xs text-blue-200">Application for Leave Management System (Revised 2020)</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="app.switchTab('form')" id="tab-form-btn" class="px-4 py-2 text-sm font-semibold rounded-lg bg-blue-700 text-white transition shadow-sm hover:bg-blue-600">
+                    <i class="fa-solid fa-pen-to-square mr-1"></i> File Leave
+                </button>
+                <button onclick="app.switchTab('records')" id="tab-records-btn" class="px-4 py-2 text-sm font-semibold rounded-lg bg-blue-950 text-blue-200 transition hover:bg-blue-800">
+                    <i class="fa-solid fa-database mr-1"></i> Submissions <span id="record-count" class="ml-1 bg-amber-500 text-slate-900 text-xs px-1.5 py-0.5 rounded-full font-bold">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-5xl w-full mx-auto px-4 py-8">
+        
+        <!-- FORM VIEW -->
+        <div id="view-form" class="space-y-6">
+            
+            <!-- Step Progress Indicator -->
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-xs font-bold uppercase tracking-wider text-blue-600" id="step-indicator-label">Step 1 of 4: Basic Information</span>
+                    <span class="text-xs text-slate-500 font-medium" id="step-percentage">25% Completed</span>
+                </div>
+                <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                    <div id="progress-bar" class="bg-blue-600 h-2 transition-all duration-300 w-1/4"></div>
+                </div>
+                <!-- Step Pills -->
+                <div class="grid grid-cols-4 gap-2 mt-4 text-center">
+                    <button type="button" onclick="app.goToStep(1)" class="step-pill py-1.5 text-xs font-semibold rounded-md border transition bg-blue-50 text-blue-700 border-blue-300" data-step="1">1. Header & Info</button>
+                    <button type="button" onclick="app.goToStep(2)" class="step-pill py-1.5 text-xs font-semibold rounded-md border transition bg-slate-50 text-slate-600 border-slate-200" data-step="2">2. Type of Leave</button>
+                    <button type="button" onclick="app.goToStep(3)" class="step-pill py-1.5 text-xs font-semibold rounded-md border transition bg-slate-50 text-slate-600 border-slate-200" data-step="3">3. Details & Dates</button>
+                    <button type="button" onclick="app.goToStep(4)" class="step-pill py-1.5 text-xs font-semibold rounded-md border transition bg-slate-50 text-slate-600 border-slate-200" data-step="4">4. Upload & Review</button>
+                </div>
+            </div>
+
+            <!-- Main Form Card modelled after Civil Service Form No. 6 -->
+            <form id="leaveForm" onsubmit="app.handleSubmit(event)" class="bg-white shadow-lg rounded-xl overflow-hidden border border-slate-300">
+                
+                <!-- Republic Header Banner -->
+                <div class="bg-slate-50 border-b border-slate-300 p-4 text-center">
+                    <p class="text-xs font-semibold text-slate-500 uppercase tracking-widest">Civil Service Form No. 6</p>
+                    <p class="text-xs text-slate-500">Revised 2020</p>
+                    <h2 class="text-lg font-bold text-slate-800 tracking-tight mt-1">Republic of the Philippines</h2>
+                    <p class="text-sm font-semibold text-slate-700">Philippine Coconut Authority</p>
+                    <p class="text-xs text-slate-600">Region 10, Cagayan de Oro City</p>
+                    <div class="mt-2 inline-block bg-slate-200 text-slate-800 font-bold px-4 py-1 rounded tracking-wide text-sm border border-slate-400">
+                        APPLICATION FOR LEAVE
+                    </div>
+                </div>
+
+                <!-- STEP 1: Basic Information -->
+                <div class="form-step p-6 space-y-6" data-step="1">
+                    <div class="flex items-center gap-2 border-b pb-2">
+                        <span class="bg-blue-600 text-white w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold">1</span>
+                        <h3 class="font-bold text-slate-800">Basic Information & Employee Details</h3>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- 1. Office/Department -->
+                        <div class="space-y-1">
+                            <label class="block text-xs font-bold text-slate-700 uppercase">1. Office / Department <span class="text-red-500">*</span></label>
+                            <input type="text" id="office" required placeholder="e.g. Accounting Division / Region 10" 
+                                class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition">
+                        </div>
+
+                        <!-- 3. Date of Filing -->
+                        <div class="space-y-1">
+                            <label class="block text-xs font-bold text-slate-700 uppercase">3. Date of Filing <span class="text-red-500">*</span></label>
+                            <input type="date" id="date_of_filing" required 
+                                class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition">
+                        </div>
+                    </div>
+
+                    <!-- 2. Name -->
+                    <div class="space-y-2 pt-2 border-t border-slate-200">
+                        <label class="block text-xs font-bold text-slate-700 uppercase">2. Name (Last, First, Middle) <span class="text-red-500">*</span></label>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <input type="text" id="name_last" required placeholder="Last Name (e.g. CARCOSA)" 
+                                class="px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm uppercase focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition">
+                            <input type="text" id="name_first" required placeholder="First Name (e.g. SARAH JEAN)" 
+                                class="px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm uppercase focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition">
+                            <input type="text" id="name_middle" placeholder="Middle Name (e.g. MABAYLAN)" 
+                                class="px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm uppercase focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2 border-t border-slate-200">
+                        <!-- 4. Position -->
+                        <div class="space-y-1">
+                            <label class="block text-xs font-bold text-slate-700 uppercase">4. Position <span class="text-red-500">*</span></label>
+                            <input type="text" id="position" required placeholder="e.g. Accounting Clerk" 
+                                class="px-3 py-2 w-full bg-slate-50 border border-slate-300 rounded-lg text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition">
+                        </div>
+
+                        <!-- 5. Salary -->
+                        <div class="space-y-1">
+                            <label class="block text-xs font-bold text-slate-700 uppercase">5. Salary (Monthly/Daily) <span class="text-red-500">*</span></label>
+                            <input type="text" id="salary" required placeholder="e.g. 18,724.30" 
+                                class="px-3 py-2 w-full bg-slate-50 border border-slate-300 rounded-lg text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition">
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end pt-4">
+                        <button type="button" onclick="app.nextStep()" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow transition flex items-center gap-2 text-sm">
+                            Next: Type of Leave <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- STEP 2: Type of Leave (6.A) -->
+                <div class="form-step p-6 space-y-6 hidden" data-step="2">
+                    <div class="flex items-center gap-2 border-b pb-2">
+                        <span class="bg-blue-600 text-white w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold">2</span>
+                        <h3 class="font-bold text-slate-800">6.A Type of Leave to be Availed of</h3>
+                    </div>
+                    <p class="text-xs text-slate-500 italic">Select the appropriate leave type as listed in the Civil Service Form No. 6.</p>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+                            <input type="radio" name="leave_type" value="Vacation Leave" class="mt-1 text-blue-600 focus:ring-blue-500" onchange="app.handleLeaveTypeChange()">
+                            <div>
+                                <span class="text-sm font-semibold text-slate-800 block">Vacation Leave</span>
+                                <span class="text-xs text-slate-500">Sec. 51, Rule XVI, Omnibus Rules Implementing E.O. No. 292</span>
+                            </div>
+                        </label>
+
+                        <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+                            <input type="radio" name="leave_type" value="Mandatory/Forced Leave" class="mt-1 text-blue-600 focus:ring-blue-500" onchange="app.handleLeaveTypeChange()">
+                            <div>
+                                <span class="text-sm font-semibold text-slate-800 block">Mandatory / Forced Leave</span>
+                                <span class="text-xs text-slate-500">Sec. 25, Rule XVI, Omnibus Rules Implementing E.O. No. 292</span>
+                            </div>
+                        </label>
+
+                        <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+                            <input type="radio" name="leave_type" value="Sick Leave" class="mt-1 text-blue-600 focus:ring-blue-500" onchange="app.handleLeaveTypeChange()">
+                            <div>
+                                <span class="text-sm font-semibold text-slate-800 block">Sick Leave</span>
+                                <span class="text-xs text-slate-500">Sec. 43, Rule XVI, Omnibus Rules Implementing E.O. No. 292</span>
+                            </div>
+                        </label>
+
+                        <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+                            <input type="radio" name="leave_type" value="Maternity Leave" class="mt-1 text-blue-600 focus:ring-blue-500" onchange="app.handleLeaveTypeChange()">
+                            <div>
+                                <span class="text-sm font-semibold text-slate-800 block">Maternity Leave</span>
+                                <span class="text-xs text-slate-500">R.A. No. 11210 / IRR issued by CSC, DOLE and SSS</span>
+                            </div>
+                        </label>
+
+                        <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+                            <input type="radio" name="leave_type" value="Paternity Leave" class="mt-1 text-blue-600 focus:ring-blue-500" onchange="app.handleLeaveTypeChange()">
+                            <div>
+                                <span class="text-sm font-semibold text-slate-800 block">Paternity Leave</span>
+                                <span class="text-xs text-slate-500">R.A. No. 8187 / CSC MC No. 71, s. 1998</span>
+                            </div>
+                        </label>
+
+                        <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+                            <input type="radio" name="leave_type" value="Special Privilege Leave" class="mt-1 text-blue-600 focus:ring-blue-500" onchange="app.handleLeaveTypeChange()">
+                            <div>
+                                <span class="text-sm font-semibold text-slate-800 block">Special Privilege Leave</span>
+                                <span class="text-xs text-slate-500">Sec. 21, Rule XVI, Omnibus Rules Implementing E.O. No. 292</span>
+                            </div>
+                        </label>
+
+                        <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+                            <input type="radio" name="leave_type" value="Solo Parent Leave" class="mt-1 text-blue-600 focus:ring-blue-500" onchange="app.handleLeaveTypeChange()">
+                            <div>
+                                <span class="text-sm font-semibold text-slate-800 block">Solo Parent Leave</span>
+                                <span class="text-xs text-slate-500">RA No. 8972 / CSC MC No. 8, s. 2004</span>
+                            </div>
+                        </label>
+
+                        <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+                            <input type="radio" name="leave_type" value="Study Leave" class="mt-1 text-blue-600 focus:ring-blue-500" onchange="app.handleLeaveTypeChange()">
+                            <div>
+                                <span class="text-sm font-semibold text-slate-800 block">Study Leave</span>
+                                <span class="text-xs text-slate-500">Sec. 68, Rule XVI, Omnibus Rules Implementing E.O. No. 292</span>
+                            </div>
+                        </label>
+
+                        <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+                            <input type="radio" name="leave_type" value="10-Day VAWC Leave" class="mt-1 text-blue-600 focus:ring-blue-500" onchange="app.handleLeaveTypeChange()">
+                            <div>
+                                <span class="text-sm font-semibold text-slate-800 block">10-Day VAWC Leave</span>
+                                <span class="text-xs text-slate-500">RA No. 9262 / CSC MC No. 15, s. 2005</span>
+                            </div>
+                        </label>
+
+                        <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+                            <input type="radio" name="leave_type" value="Rehabilitation Privilege" class="mt-1 text-blue-600 focus:ring-blue-500" onchange="app.handleLeaveTypeChange()">
+                            <div>
+                                <span class="text-sm font-semibold text-slate-800 block">Rehabilitation Privilege</span>
+                                <span class="text-xs text-slate-500">Sec. 55, Rule XVI, Omnibus Rules Implementing E.O. No. 292</span>
+                            </div>
+                        </label>
+
+                        <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+                            <input type="radio" name="leave_type" value="Special Leave Benefits for Women" class="mt-1 text-blue-600 focus:ring-blue-500" onchange="app.handleLeaveTypeChange()">
+                            <div>
+                                <span class="text-sm font-semibold text-slate-800 block">Special Leave Benefits for Women</span>
+                                <span class="text-xs text-slate-500">RA No. 9710 / CSC MC No. 25, s. 2010</span>
+                            </div>
+                        </label>
+
+                        <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+                            <input type="radio" name="leave_type" value="Special Emergency (Calamity) Leave" class="mt-1 text-blue-600 focus:ring-blue-500" onchange="app.handleLeaveTypeChange()">
+                            <div>
+                                <span class="text-sm font-semibold text-slate-800 block">Special Emergency (Calamity) Leave</span>
+                                <span class="text-xs text-slate-500">CSC MC No. 2, s. 2012</span>
+                            </div>
+                        </label>
+
+                        <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+                            <input type="radio" name="leave_type" value="Adoption Leave" class="mt-1 text-blue-600 focus:ring-blue-500" onchange="app.handleLeaveTypeChange()">
+                            <div>
+                                <span class="text-sm font-semibold text-slate-800 block">Adoption Leave</span>
+                                <span class="text-xs text-slate-500">RA No. 8552</span>
+                            </div>
+                        </label>
+
+                        <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+                            <input type="radio" name="leave_type" value="Others" class="mt-1 text-blue-600 focus:ring-blue-500" onchange="app.handleLeaveTypeChange()">
+                            <div>
+                                <span class="text-sm font-semibold text-slate-800 block">Others (Specify)</span>
+                                <span class="text-xs text-slate-500">e.g. Wellness Leave, Birthday Leave</span>
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- Others Specify Input (Hidden by default) -->
+                    <div id="others_container" class="hidden mt-4 space-y-1 bg-amber-50 p-4 rounded-lg border border-amber-200">
+                        <label class="block text-xs font-bold text-amber-900 uppercase">Please specify other leave type:</label>
+                        <input type="text" id="leave_type_others" placeholder="e.g. WELLNESS LEAVE" 
+                            class="w-full px-3 py-2 bg-white border border-amber-300 rounded-lg text-sm uppercase focus:ring-2 focus:ring-amber-500 outline-none">
+                    </div>
+
+                    <div class="flex justify-between pt-4">
+                        <button type="button" onclick="app.prevStep()" class="px-5 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-lg transition text-sm">
+                            <i class="fa-solid fa-arrow-left mr-1"></i> Back
+                        </button>
+                        <button type="button" onclick="app.nextStep()" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow transition flex items-center gap-2 text-sm">
+                            Next: Details & Dates <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- STEP 3: Specific Leave Details & Commutation (6.B, 6.C, 6.D) -->
+                <div class="form-step p-6 space-y-6 hidden" data-step="3">
+                    <div class="flex items-center gap-2 border-b pb-2">
+                        <span class="bg-blue-600 text-white w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold">3</span>
+                        <h3 class="font-bold text-slate-800">6.B, 6.C & 6.D Specific Leave Details & Working Days</h3>
+                    </div>
+
+                    <!-- Dynamic Sub-details based on leave type -->
+                    <div id="vacation_details_section" class="leave-sub-section hidden bg-blue-50 p-4 rounded-xl border border-blue-200 space-y-3">
+                        <h4 class="text-xs font-bold text-blue-900 uppercase">In case of Vacation / Special Privilege Leave:</h4>
+                        <div class="space-y-2">
+                            <label class="flex items-center gap-2 text-sm font-medium text-slate-700">
+                                <input type="radio" name="vacation_location" value="Within the Philippines" class="text-blue-600"> Within the Philippines
+                            </label>
+                            <input type="text" id="vacation_location_address" placeholder="Specify location/address" class="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-sm">
+                            
+                            <label class="flex items-center gap-2 text-sm font-medium text-slate-700 mt-2">
+                                <input type="radio" name="vacation_location" value="Abroad" class="text-blue-600"> Abroad (Specify)
+                            </label>
+                            <input type="text" id="vacation_abroad_country" placeholder="Specify country" class="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-sm">
+                        </div>
+                    </div>
+
+                    <div id="sick_details_section" class="leave-sub-section hidden bg-emerald-50 p-4 rounded-xl border border-emerald-200 space-y-3">
+                        <h4 class="text-xs font-bold text-emerald-900 uppercase">In case of Sick Leave:</h4>
+                        <div class="space-y-2">
+                            <label class="flex items-center gap-2 text-sm font-medium text-slate-700">
+                                <input type="radio" name="sick_location" value="In Hospital" class="text-emerald-600"> In Hospital (Specify Illness)
+                            </label>
+                            <input type="text" id="sick_hospital_illness" placeholder="Specify illness/condition" class="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-sm">
+                            
+                            <label class="flex items-center gap-2 text-sm font-medium text-slate-700 mt-2">
+                                <input type="radio" name="sick_location" value="Out Patient" class="text-emerald-600"> Out Patient (Specify Illness)
+                            </label>
+                            <input type="text" id="sick_outpatient_illness" placeholder="Specify illness/condition" class="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-sm">
+                        </div>
+                    </div>
+
+                    <!-- 6.C Number of Working Days & Inclusive Dates -->
+                    <div class="space-y-4 pt-2">
+                        <div class="space-y-1">
+                            <label class="block text-xs font-bold text-slate-700 uppercase">6.C Number of Working Days Applied For <span class="text-red-500">*</span></label>
+                            <input type="text" id="working_days_count" required placeholder="e.g. 1 1/2 DAYS" 
+                                class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+                        </div>
+
+                        <div class="space-y-1">
+                            <label class="block text-xs font-bold text-slate-700 uppercase">Inclusive Dates <span class="text-red-500">*</span></label>
+                            <input type="text" id="inclusive_dates" required placeholder="e.g. Half Day : Sept. 24, 2026 and Whole Day: Sept. 30, 2026" 
+                                class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+                        </div>
+                    </div>
+
+                    <!-- 6.D Commutation -->
+                    <div class="space-y-2 pt-2 border-t border-slate-200">
+                        <label class="block text-xs font-bold text-slate-700 uppercase">6.D Commutation <span class="text-red-500">*</span></label>
+                        <div class="flex gap-6">
+                            <label class="flex items-center gap-2 text-sm font-medium text-slate-700 cursor-pointer">
+                                <input type="radio" name="commutation" value="Not Requested" checked class="text-blue-600"> Not Requested
+                            </label>
+                            <label class="flex items-center gap-2 text-sm font-medium text-slate-700 cursor-pointer">
+                                <input type="radio" name="commutation" value="Requested" class="text-blue-600"> Requested
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between pt-4">
+                        <button type="button" onclick="app.prevStep()" class="px-5 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-lg transition text-sm">
+                            <i class="fa-solid fa-arrow-left mr-1"></i> Back
+                        </button>
+                        <button type="button" onclick="app.nextStep()" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow transition flex items-center gap-2 text-sm">
+                            Next: Upload Scanned Form <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- STEP 4: Scanned Copy Upload & Review -->
+                <div class="form-step p-6 space-y-6 hidden" data-step="4">
+                    <div class="flex items-center gap-2 border-b pb-2">
+                        <span class="bg-blue-600 text-white w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold">4</span>
+                        <h3 class="font-bold text-slate-800">Scanned Copy Upload & Final Review</h3>
+                    </div>
+
+                    <!-- File Upload Box -->
+                    <div class="space-y-2">
+                        <label class="block text-xs font-bold text-slate-700 uppercase">Upload Scanned Copy / Photo of Signed Form No. 6</label>
+                        <div class="border-2 border-dashed border-slate-300 rounded-xl p-6 text-center bg-slate-50 hover:bg-blue-50/50 transition cursor-pointer relative" onclick="document.getElementById('scanned_file').click()">
+                            <input type="file" id="scanned_file" accept="image/*,.pdf" class="hidden" onchange="app.handleFileSelect(event)">
+                            <div id="upload_placeholder" class="space-y-2">
+                                <i class="fa-solid fa-cloud-arrow-up text-3xl text-blue-600"></i>
+                                <p class="text-sm font-semibold text-slate-700">Click to upload or drag & drop scanned form</p>
+                                <p class="text-xs text-slate-500">Supports PNG, JPG, or PDF (Max 10MB)</p>
+                            </div>
+                            <div id="upload_success" class="hidden space-y-2">
+                                <i class="fa-solid fa-circle-check text-3xl text-emerald-600"></i>
+                                <p class="text-sm font-bold text-emerald-700" id="file_name_display">file_uploaded.png</p>
+                                <p class="text-xs text-slate-500">Click to change file</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Summary Review Box -->
+                    <div class="bg-slate-50 rounded-xl p-4 border border-slate-200 space-y-3">
+                        <h4 class="text-xs font-bold text-slate-600 uppercase tracking-wider">Summary of Leave Application</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                            <div>
+                                <span class="text-xs text-slate-500 block">Applicant Name:</span>
+                                <span class="font-bold text-slate-800" id="review_name">-</span>
+                            </div>
+                            <div>
+                                <span class="text-xs text-slate-500 block">Office / Dept:</span>
+                                <span class="font-bold text-slate-800" id="review_office">-</span>
+                            </div>
+                            <div>
+                                <span class="text-xs text-slate-500 block">Type of Leave:</span>
+                                <span class="font-bold text-blue-600" id="review_leave_type">-</span>
+                            </div>
+                            <div>
+                                <span class="text-xs text-slate-500 block">Working Days & Dates:</span>
+                                <span class="font-bold text-slate-800" id="review_dates">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between pt-4">
+                        <button type="button" onclick="app.prevStep()" class="px-5 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-lg transition text-sm">
+                            <i class="fa-solid fa-arrow-left mr-1"></i> Back
+                        </button>
+                        <button type="submit" class="px-8 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg shadow-lg transition flex items-center gap-2 text-base">
+                            <i class="fa-solid fa-paper-plane"></i> Submit Leave Application
+                        </button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+
+        <!-- RECORDS VIEW (Database Simulated List) -->
+        <div id="view-records" class="hidden space-y-6">
+            <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200 flex justify-between items-center">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-800">Submitted Leave Applications</h2>
+                    <p class="text-xs text-slate-500">Stored locally in database mock state. Ready for future backend sync (Supabase / MySQL).</p>
+                </div>
+                <button onclick="app.switchTab('form')" class="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg shadow hover:bg-blue-700 transition">
+                    <i class="fa-solid fa-plus mr-1"></i> New Application
+                </button>
+            </div>
+
+            <div id="records-container" class="space-y-4">
+                <!-- Populated via JavaScript -->
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 text-center space-y-4 shadow-2xl animate-in fade-in zoom-in duration-200">
+            <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-3xl">
+                <i class="fa-solid fa-check"></i>
+            </div>
+            <h3 class="text-xl font-bold text-slate-900">Leave Application Submitted!</h3>
+            <p class="text-sm text-slate-600">Your Civil Service Form No. 6 has been successfully recorded along with your scanned document.</p>
+            <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 text-xs font-mono text-slate-700" id="successTrackingId">
+                Tracking ID: PCA-R10-2026-001
+            </div>
+            <div class="flex gap-3 pt-2">
+                <button onclick="app.closeSuccessModal()" class="flex-1 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-lg text-sm transition">
+                    Close
+                </button>
+                <button onclick="app.viewRecords()" class="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg text-sm transition">
+                    View Submissions
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-slate-800 text-slate-400 py-4 text-center text-xs">
+        <p>Civil Service Form No. 6 (Revised 2020) Web Application • Designed for Philippine Coconut Authority Region 10</p>
+    </footer>
+
+    <script>
+        class LeaveApp {
+            constructor() {
+                this.currentStep = 1;
+                this.totalSteps = 4;
+                this.records = JSON.parse(localStorage.getItem('pca_leave_records') || '[]');
+                this.uploadedFileObj = null;
+                this.init();
+            }
+
+            init() {
+                this.updateView();
+                this.updateRecordCount();
+                // Set default filing date to today
+                const today = new Date().toISOString().split('T')[0];
+                const filingDateInput = document.getElementById('date_of_filing');
+                if (filingDateInput && !filingDateInput.value) {
+                    filingDateInput.value = today;
+                }
+            }
+
+            switchTab(tabName) {
+                const formView = document.getElementById('view-form');
+                const recordsView = document.getElementById('view-records');
+                const formBtn = document.getElementById('tab-form-btn');
+                const recordsBtn = document.getElementById('tab-records-btn');
+
+                if (tabName === 'form') {
+                    formView.classList.remove('hidden');
+                    recordsView.classList.add('hidden');
+                    formBtn.className = 'px-4 py-2 text-sm font-semibold rounded-lg bg-blue-700 text-white transition shadow-sm hover:bg-blue-600';
+                    recordsBtn.className = 'px-4 py-2 text-sm font-semibold rounded-lg bg-blue-950 text-blue-200 transition hover:bg-blue-800';
+                } else {
+                    formView.classList.add('hidden');
+                    recordsView.classList.remove('hidden');
+                    recordsBtn.className = 'px-4 py-2 text-sm font-semibold rounded-lg bg-blue-700 text-white transition shadow-sm hover:bg-blue-600';
+                    formBtn.className = 'px-4 py-2 text-sm font-semibold rounded-lg bg-blue-950 text-blue-200 transition hover:bg-blue-800';
+                    this.renderRecordsList();
+                }
+            }
+
+            goToStep(step) {
+                if (step < 1 || step > this.totalSteps) return;
+                
+                // Basic validation before moving forward from step 1
+                if (this.currentStep === 1 && step > 1) {
+                    const office = document.getElementById('office').value;
+                    const lastName = document.getElementById('name_last').value;
+                    const firstName = document.getElementById('name_first').value;
+                    const position = document.getElementById('position').value;
+                    const salary = document.getElementById('salary').value;
+                    
+                    if (!office || !lastName || !firstName || !position || !salary) {
+                        alert('Please fill out all required fields in Step 1 before proceeding.');
+                        return;
+                    }
+                }
+
+                this.currentStep = step;
+                this.updateView();
+
+                if (this.currentStep === 4) {
+                    this.populateReview();
+                }
+            }
+
+            nextStep() {
+                this.goToStep(this.currentStep + 1);
+            }
+
+            prevStep() {
+                this.goToStep(this.currentStep - 1);
+            }
+
+            updateView() {
+                // Show/hide step sections
+                document.querySelectorAll('.form-step').forEach(el => {
+                    const stepNum = parseInt(el.getAttribute('data-step'));
+                    if (stepNum === this.currentStep) {
+                        el.classList.remove('hidden');
+                    } else {
+                        el.classList.add('hidden');
+                    }
+                });
+
+                // Update step pills
+                document.querySelectorAll('.step-pill').forEach(btn => {
+                    const stepNum = parseInt(btn.getAttribute('data-step'));
+                    if (stepNum === this.currentStep) {
+                        btn.className = 'step-pill py-1.5 text-xs font-semibold rounded-md border transition bg-blue-50 text-blue-700 border-blue-300 shadow-sm';
+                    } else if (stepNum < this.currentStep) {
+                        btn.className = 'step-pill py-1.5 text-xs font-semibold rounded-md border transition bg-emerald-50 text-emerald-700 border-emerald-300';
+                    } else {
+                        btn.className = 'step-pill py-1.5 text-xs font-semibold rounded-md border transition bg-slate-50 text-slate-600 border-slate-200';
+                    }
+                });
+
+                // Progress bar
+                const percentages = ['25%', '50%', '75%', '100%'];
+                const labels = [
+                    'Step 1 of 4: Basic Information',
+                    'Step 2 of 4: Type of Leave (6.A)',
+                    'Step 3 of 4: Specific Details & Dates',
+                    'Step 4 of 4: Scanned Copy & Review'
+                ];
+                document.getElementById('progress-bar').style.width = percentages[this.currentStep - 1];
+                document.getElementById('step-percentage').innerText = `${percentages[this.currentStep - 1]} Completed`;
+                document.getElementById('step-indicator-label').innerText = labels[this.currentStep - 1];
+
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            handleLeaveTypeChange() {
+                const selected = document.querySelector('input[name="leave_type"]:checked');
+                const othersContainer = document.getElementById('others_container');
+                const vacationSec = document.getElementById('vacation_details_section');
+                const sickSec = document.getElementById('sick_details_section');
+
+                // Hide all sub-sections initially
+                othersContainer.classList.add('hidden');
+                vacationSec.classList.add('hidden');
+                sickSec.classList.add('hidden');
+
+                if (!selected) return;
+
+                const val = selected.value;
+                if (val === 'Others') {
+                    othersContainer.classList.remove('hidden');
+                } else if (val === 'Vacation Leave' || val === 'Special Privilege Leave' || val === 'Mandatory/Forced Leave') {
+                    vacationSec.classList.remove('hidden');
+                } else if (val === 'Sick Leave') {
+                    sickSec.classList.remove('hidden');
+                }
+            }
+
+            handleFileSelect(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    this.uploadedFileObj = file.name;
+                    document.getElementById('upload_placeholder').classList.add('hidden');
+                    const successBox = document.getElementById('upload_success');
+                    successBox.classList.remove('hidden');
+                    document.getElementById('file_name_display').innerText = file.name;
+                }
+            }
+
+            populateReview() {
+                const lastName = document.getElementById('name_last').value.toUpperCase();
+                const firstName = document.getElementById('name_first').value.toUpperCase();
+                const middleName = document.getElementById('name_middle').value.toUpperCase();
+                document.getElementById('review_name').innerText = `${lastName}, ${firstName} ${middleName}`;
+                
+                document.getElementById('review_office').innerText = document.getElementById('office').value;
+                
+                const leaveRadio = document.querySelector('input[name="leave_type"]:checked');
+                let leaveVal = leaveRadio ? leaveRadio.value : 'Not Selected';
+                if (leaveVal === 'Others') {
+                    leaveVal = document.getElementById('leave_type_others').value || 'Others';
+                }
+                document.getElementById('review_leave_type').innerText = leaveVal;
+
+                const days = document.getElementById('working_days_count').value;
+                const dates = document.getElementById('inclusive_dates').value;
+                document.getElementById('review_dates').innerText = `${days} (${dates})`;
+            }
+
+            handleSubmit(event) {
+                event.preventDefault();
+
+                const leaveRadio = document.querySelector('input[name="leave_type"]:checked');
+                if (!leaveRadio) {
+                    alert('Please select a Type of Leave in Step 2.');
+                    this.goToStep(2);
+                    return;
+                }
+
+                let leaveType = leaveRadio.value;
+                if (leaveType === 'Others') {
+                    leaveType = document.getElementById('leave_type_others').value || 'Others';
+                }
+
+                const record = {
+                    id: 'PCA-R10-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random() * 9000),
+                    office: document.getElementById('office').value,
+                    dateFiling: document.getElementById('date_of_filing').value,
+                    name: `${document.getElementById('name_last').value}, ${document.getElementById('name_first').value} ${document.getElementById('name_middle').value}`,
+                    position: document.getElementById('position').value,
+                    salary: document.getElementById('salary').value,
+                    leaveType: leaveType,
+                    workingDays: document.getElementById('working_days_count').value,
+                    inclusiveDates: document.getElementById('inclusive_dates').value,
+                    commutation: document.querySelector('input[name="commutation"]:checked').value,
+                    fileName: this.uploadedFileObj || 'No file attached',
+                    timestamp: new Date().toLocaleString()
+                };
+
+                this.records.unshift(record);
+                localStorage.setItem('pca_leave_records', JSON.stringify(this.records));
+                this.updateRecordCount();
+
+                // Show success modal
+                document.getElementById('successTrackingId').innerText = `Tracking ID: ${record.id}`;
+                document.getElementById('successModal').classList.remove('hidden');
+            }
+
+            closeSuccessModal() {
+                document.getElementById('successModal').classList.add('hidden');
+                // Reset form and go to step 1
+                document.getElementById('leaveForm').reset();
+                this.uploadedFileObj = null;
+                document.getElementById('upload_placeholder').classList.remove('hidden');
+                document.getElementById('upload_success').classList.add('hidden');
+                this.goToStep(1);
+            }
+
+            viewRecords() {
+                document.getElementById('successModal').classList.add('hidden');
+                this.switchTab('records');
+            }
+
+            updateRecordCount() {
+                document.getElementById('record-count').innerText = this.records.length;
+            }
+
+            renderRecordsList() {
+                const container = document.getElementById('records-container');
+                if (this.records.length === 0) {
+                    container.innerHTML = `
+                        <div class="bg-white p-8 rounded-xl shadow-sm text-center border border-slate-200">
+                            <i class="fa-solid fa-folder-open text-4xl text-slate-300 mb-3"></i>
+                            <p class="text-slate-600 font-medium">No leave applications filed yet.</p>
+                            <p class="text-xs text-slate-400 mt-1">Complete the multi-step form to submit and test database storage.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = this.records.map(rec => `
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 hover:shadow-md transition space-y-3">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b pb-3">
+                            <div>
+                                <span class="bg-blue-100 text-blue-800 text-xs font-mono font-bold px-2.5 py-1 rounded-md">${rec.id}</span>
+                                <span class="text-xs text-slate-500 ml-2"><i class="fa-regular fa-clock mr-1"></i> ${rec.timestamp}</span>
+                            </div>
+                            <span class="bg-emerald-100 text-emerald-800 text-xs font-semibold px-2.5 py-1 rounded-full"><i class="fa-solid fa-check-circle mr-1"></i> Pending Approval</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                            <div>
+                                <span class="text-xs text-slate-500 block">Applicant Name:</span>
+                                <span class="font-bold text-slate-800">${rec.name}</span>
+                                <span class="text-xs text-slate-500 block mt-1">Position: ${rec.position}</span>
+                            </div>
+                            <div>
+                                <span class="text-xs text-slate-500 block">Type of Leave:</span>
+                                <span class="font-bold text-blue-600">${rec.leaveType}</span>
+                                <span class="text-xs text-slate-500 block mt-1">Days: ${rec.workingDays}</span>
+                            </div>
+                            <div>
+                                <span class="text-xs text-slate-500 block">Inclusive Dates:</span>
+                                <span class="font-semibold text-slate-700">${rec.inclusiveDates}</span>
+                                <span class="text-xs text-slate-500 block mt-1"><i class="fa-solid fa-paperclip mr-1 text-slate-400"></i> ${rec.fileName}</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        const app = new LeaveApp();
+    </script>
+</body>
+</html>
