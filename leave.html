@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Civil Service Form No. 6 - Application for Leave</title>
+    <script src="config.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -14,19 +15,71 @@
         .form-border-r { border-right: 2px solid #1e293b; }
         .form-border-t { border-top: 2px solid #1e293b; }
         .form-border-l { border-left: 2px solid #1e293b; }
+
+        #print-sheet-dock {
+            position: absolute;
+            left: -9999px;
+            top: 0;
+            width: 8.5in;
+        }
+
+        .csc-sheet {
+            font-family: "Times New Roman", Times, serif;
+            background: #fff;
+            color: #000;
+            border: 1.5px solid #000;
+            font-size: 11px;
+            line-height: 1.2;
+            width: 100%;
+            max-width: 8.5in;
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+        .csc-sheet * { box-sizing: border-box; }
+        .csc-sheet table { width: 100%; border-collapse: collapse; }
+        .csc-sheet td, .csc-sheet th { vertical-align: top; }
+        .csc-sheet .box { border: 1px solid #000; }
+        .csc-sheet .box-b { border-bottom: 1px solid #000; }
+        .csc-sheet .box-r { border-right: 1px solid #000; }
+        .csc-sheet .box-t { border-top: 1px solid #000; }
+        .csc-sheet .chk { font-size: 12px; display: inline-block; width: 14px; text-align: center; }
+        .csc-sheet .fill { font-weight: 700; text-decoration: underline; text-underline-offset: 2px; }
+        .csc-sheet .tiny { font-size: 8.5px; }
+        .csc-sheet .sig-line { border-bottom: 1px solid #000; min-height: 18px; text-align: center; font-weight: 700; }
+
+        @media print {
+            @page { size: letter portrait; margin: 0.35in; }
+            html, body {
+                background: #fff !important;
+                height: auto !important;
+                overflow: visible !important;
+            }
+            body * { visibility: hidden; }
+            #csc-print-sheet, #csc-print-sheet * { visibility: visible; }
+            #csc-print-sheet {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                max-width: none;
+                margin: 0;
+                border-width: 1.5px;
+            }
+        }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-900 h-full flex flex-col justify-between">
 
-    <header class="bg-blue-900 text-white shadow-md py-4 px-6">
+    <header class="no-print bg-blue-900 text-white shadow-md py-4 px-6">
         <div class="max-w-5xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
             <div class="flex items-center gap-3">
-                <div class="bg-white/10 p-2 rounded-lg">
-                    <i class="fa-solid fa-file-invoice text-2xl text-amber-400"></i>
+                <div class="bg-white p-1 rounded-lg">
+                    <img src="assets/pca-logo.png" alt="Philippine Coconut Authority" class="h-10 w-auto">
                 </div>
                 <div>
                     <h1 class="font-bold text-lg tracking-wide">CSC FORM NO. 6 PORTAL</h1>
                     <p class="text-xs text-blue-200">Application for Leave Management System (Revised 2020)</p>
+                    <p id="db-status" class="text-[10px] text-blue-300 mt-0.5">Storage: this computer only</p>
                 </div>
             </div>
             <div class="flex items-center gap-2">
@@ -40,7 +93,7 @@
         </div>
     </header>
 
-    <main class="flex-grow max-w-5xl w-full mx-auto px-4 py-8">
+    <main class="no-print flex-grow max-w-5xl w-full mx-auto px-4 py-8">
         
         <!-- FORM VIEW -->
         <div id="view-form" class="space-y-6">
@@ -59,7 +112,7 @@
                     <button type="button" onclick="app.goToStep(1)" class="step-pill py-1.5 text-xs font-semibold rounded-md border transition bg-blue-50 text-blue-700 border-blue-300" data-step="1">1. Header & Info</button>
                     <button type="button" onclick="app.goToStep(2)" class="step-pill py-1.5 text-xs font-semibold rounded-md border transition bg-slate-50 text-slate-600 border-slate-200" data-step="2">2. Type of Leave</button>
                     <button type="button" onclick="app.goToStep(3)" class="step-pill py-1.5 text-xs font-semibold rounded-md border transition bg-slate-50 text-slate-600 border-slate-200" data-step="3">3. Details & Dates</button>
-                    <button type="button" onclick="app.goToStep(4)" class="step-pill py-1.5 text-xs font-semibold rounded-md border transition bg-slate-50 text-slate-600 border-slate-200" data-step="4">4. Upload & Review</button>
+                    <button type="button" onclick="app.goToStep(4)" class="step-pill py-1.5 text-xs font-semibold rounded-md border transition bg-slate-50 text-slate-600 border-slate-200" data-step="4">4. Printable Form</button>
                 </div>
             </div>
 
@@ -86,14 +139,11 @@
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- 1. Office/Department -->
                         <div class="space-y-1">
                             <label class="block text-xs font-bold text-slate-700 uppercase">1. Office / Department <span class="text-red-500">*</span></label>
                             <input type="text" id="office" required placeholder="e.g. Accounting Division / Region 10" 
                                 class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition">
                         </div>
-
-                        <!-- 3. Date of Filing -->
                         <div class="space-y-1">
                             <label class="block text-xs font-bold text-slate-700 uppercase">3. Date of Filing <span class="text-red-500">*</span></label>
                             <input type="date" id="date_of_filing" required 
@@ -101,7 +151,6 @@
                         </div>
                     </div>
 
-                    <!-- 2. Name -->
                     <div class="space-y-2 pt-2 border-t border-slate-200">
                         <label class="block text-xs font-bold text-slate-700 uppercase">2. Name (Last, First, Middle) <span class="text-red-500">*</span></label>
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -115,14 +164,11 @@
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2 border-t border-slate-200">
-                        <!-- 4. Position -->
                         <div class="space-y-1">
                             <label class="block text-xs font-bold text-slate-700 uppercase">4. Position <span class="text-red-500">*</span></label>
                             <input type="text" id="position" required placeholder="e.g. Accounting Clerk" 
                                 class="px-3 py-2 w-full bg-slate-50 border border-slate-300 rounded-lg text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition">
                         </div>
-
-                        <!-- 5. Salary -->
                         <div class="space-y-1">
                             <label class="block text-xs font-bold text-slate-700 uppercase">5. Salary (Monthly/Daily) <span class="text-red-500">*</span></label>
                             <input type="text" id="salary" required placeholder="e.g. 18,724.30" 
@@ -153,7 +199,6 @@
                                 <span class="text-xs text-slate-500">Sec. 51, Rule XVI, Omnibus Rules Implementing E.O. No. 292</span>
                             </div>
                         </label>
-
                         <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
                             <input type="radio" name="leave_type" value="Mandatory/Forced Leave" class="mt-1 text-blue-600 focus:ring-blue-500" onchange="app.handleLeaveTypeChange()">
                             <div>
@@ -161,7 +206,6 @@
                                 <span class="text-xs text-slate-500">Sec. 25, Rule XVI, Omnibus Rules Implementing E.O. No. 292</span>
                             </div>
                         </label>
-
                         <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
                             <input type="radio" name="leave_type" value="Sick Leave" class="mt-1 text-blue-600 focus:ring-blue-500" onchange="app.handleLeaveTypeChange()">
                             <div>
@@ -169,7 +213,6 @@
                                 <span class="text-xs text-slate-500">Sec. 43, Rule XVI, Omnibus Rules Implementing E.O. No. 292</span>
                             </div>
                         </label>
-
                         <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
                             <input type="radio" name="leave_type" value="Maternity Leave" class="mt-1 text-blue-600 focus:ring-blue-500" onchange="app.handleLeaveTypeChange()">
                             <div>
@@ -177,7 +220,6 @@
                                 <span class="text-xs text-slate-500">R.A. No. 11210 / IRR issued by CSC, DOLE and SSS</span>
                             </div>
                         </label>
-
                         <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
                             <input type="radio" name="leave_type" value="Paternity Leave" class="mt-1 text-blue-600 focus:ring-blue-500" onchange="app.handleLeaveTypeChange()">
                             <div>
@@ -185,7 +227,6 @@
                                 <span class="text-xs text-slate-500">R.A. No. 8187 / CSC MC No. 71, s. 1998</span>
                             </div>
                         </label>
-
                         <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
                             <input type="radio" name="leave_type" value="Special Privilege Leave" class="mt-1 text-blue-600 focus:ring-blue-500" onchange="app.handleLeaveTypeChange()">
                             <div>
@@ -193,7 +234,6 @@
                                 <span class="text-xs text-slate-500">Sec. 21, Rule XVI, Omnibus Rules Implementing E.O. No. 292</span>
                             </div>
                         </label>
-
                         <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
                             <input type="radio" name="leave_type" value="Solo Parent Leave" class="mt-1 text-blue-600 focus:ring-blue-500" onchange="app.handleLeaveTypeChange()">
                             <div>
@@ -201,7 +241,6 @@
                                 <span class="text-xs text-slate-500">RA No. 8972 / CSC MC No. 8, s. 2004</span>
                             </div>
                         </label>
-
                         <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
                             <input type="radio" name="leave_type" value="Study Leave" class="mt-1 text-blue-600 focus:ring-blue-500" onchange="app.handleLeaveTypeChange()">
                             <div>
@@ -209,7 +248,6 @@
                                 <span class="text-xs text-slate-500">Sec. 68, Rule XVI, Omnibus Rules Implementing E.O. No. 292</span>
                             </div>
                         </label>
-
                         <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
                             <input type="radio" name="leave_type" value="10-Day VAWC Leave" class="mt-1 text-blue-600 focus:ring-blue-500" onchange="app.handleLeaveTypeChange()">
                             <div>
@@ -217,7 +255,6 @@
                                 <span class="text-xs text-slate-500">RA No. 9262 / CSC MC No. 15, s. 2005</span>
                             </div>
                         </label>
-
                         <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
                             <input type="radio" name="leave_type" value="Rehabilitation Privilege" class="mt-1 text-blue-600 focus:ring-blue-500" onchange="app.handleLeaveTypeChange()">
                             <div>
@@ -225,7 +262,6 @@
                                 <span class="text-xs text-slate-500">Sec. 55, Rule XVI, Omnibus Rules Implementing E.O. No. 292</span>
                             </div>
                         </label>
-
                         <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
                             <input type="radio" name="leave_type" value="Special Leave Benefits for Women" class="mt-1 text-blue-600 focus:ring-blue-500" onchange="app.handleLeaveTypeChange()">
                             <div>
@@ -233,7 +269,6 @@
                                 <span class="text-xs text-slate-500">RA No. 9710 / CSC MC No. 25, s. 2010</span>
                             </div>
                         </label>
-
                         <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
                             <input type="radio" name="leave_type" value="Special Emergency (Calamity) Leave" class="mt-1 text-blue-600 focus:ring-blue-500" onchange="app.handleLeaveTypeChange()">
                             <div>
@@ -241,7 +276,6 @@
                                 <span class="text-xs text-slate-500">CSC MC No. 2, s. 2012</span>
                             </div>
                         </label>
-
                         <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
                             <input type="radio" name="leave_type" value="Adoption Leave" class="mt-1 text-blue-600 focus:ring-blue-500" onchange="app.handleLeaveTypeChange()">
                             <div>
@@ -249,7 +283,6 @@
                                 <span class="text-xs text-slate-500">RA No. 8552</span>
                             </div>
                         </label>
-
                         <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
                             <input type="radio" name="leave_type" value="Others" class="mt-1 text-blue-600 focus:ring-blue-500" onchange="app.handleLeaveTypeChange()">
                             <div>
@@ -259,7 +292,6 @@
                         </label>
                     </div>
 
-                    <!-- Others Specify Input (Hidden by default) -->
                     <div id="others_container" class="hidden mt-4 space-y-1 bg-amber-50 p-4 rounded-lg border border-amber-200">
                         <label class="block text-xs font-bold text-amber-900 uppercase">Please specify other leave type:</label>
                         <input type="text" id="leave_type_others" placeholder="e.g. WELLNESS LEAVE" 
@@ -283,7 +315,6 @@
                         <h3 class="font-bold text-slate-800">6.B, 6.C & 6.D Specific Leave Details & Working Days</h3>
                     </div>
 
-                    <!-- Dynamic Sub-details based on leave type -->
                     <div id="vacation_details_section" class="leave-sub-section hidden bg-blue-50 p-4 rounded-xl border border-blue-200 space-y-3">
                         <h4 class="text-xs font-bold text-blue-900 uppercase">In case of Vacation / Special Privilege Leave:</h4>
                         <div class="space-y-2">
@@ -291,7 +322,6 @@
                                 <input type="radio" name="vacation_location" value="Within the Philippines" class="text-blue-600"> Within the Philippines
                             </label>
                             <input type="text" id="vacation_location_address" placeholder="Specify location/address" class="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-sm">
-                            
                             <label class="flex items-center gap-2 text-sm font-medium text-slate-700 mt-2">
                                 <input type="radio" name="vacation_location" value="Abroad" class="text-blue-600"> Abroad (Specify)
                             </label>
@@ -306,7 +336,6 @@
                                 <input type="radio" name="sick_location" value="In Hospital" class="text-emerald-600"> In Hospital (Specify Illness)
                             </label>
                             <input type="text" id="sick_hospital_illness" placeholder="Specify illness/condition" class="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-sm">
-                            
                             <label class="flex items-center gap-2 text-sm font-medium text-slate-700 mt-2">
                                 <input type="radio" name="sick_location" value="Out Patient" class="text-emerald-600"> Out Patient (Specify Illness)
                             </label>
@@ -314,14 +343,37 @@
                         </div>
                     </div>
 
-                    <!-- 6.C Number of Working Days & Inclusive Dates -->
+                    <div id="women_details_section" class="leave-sub-section hidden bg-rose-50 p-4 rounded-xl border border-rose-200 space-y-3">
+                        <h4 class="text-xs font-bold text-rose-900 uppercase">In case of Special Leave Benefits for Women:</h4>
+                        <input type="text" id="women_illness" placeholder="Specify illness" class="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-sm">
+                    </div>
+
+                    <div id="study_details_section" class="leave-sub-section hidden bg-violet-50 p-4 rounded-xl border border-violet-200 space-y-3">
+                        <h4 class="text-xs font-bold text-violet-900 uppercase">In case of Study Leave:</h4>
+                        <label class="flex items-center gap-2 text-sm font-medium text-slate-700">
+                            <input type="radio" name="study_purpose" value="Completion of Master's Degree"> Completion of Master's Degree
+                        </label>
+                        <label class="flex items-center gap-2 text-sm font-medium text-slate-700">
+                            <input type="radio" name="study_purpose" value="BAR/Board Examination Review"> BAR/Board Examination Review
+                        </label>
+                    </div>
+
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
+                        <h4 class="text-xs font-bold text-slate-700 uppercase">Other purpose (if applicable):</h4>
+                        <label class="flex items-center gap-2 text-sm font-medium text-slate-700">
+                            <input type="radio" name="other_purpose" value="Monetization of Leave Credits"> Monetization of Leave Credits
+                        </label>
+                        <label class="flex items-center gap-2 text-sm font-medium text-slate-700">
+                            <input type="radio" name="other_purpose" value="Terminal Leave"> Terminal Leave
+                        </label>
+                    </div>
+
                     <div class="space-y-4 pt-2">
                         <div class="space-y-1">
                             <label class="block text-xs font-bold text-slate-700 uppercase">6.C Number of Working Days Applied For <span class="text-red-500">*</span></label>
                             <input type="text" id="working_days_count" required placeholder="e.g. 1 1/2 DAYS" 
                                 class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none">
                         </div>
-
                         <div class="space-y-1">
                             <label class="block text-xs font-bold text-slate-700 uppercase">Inclusive Dates <span class="text-red-500">*</span></label>
                             <input type="text" id="inclusive_dates" required placeholder="e.g. Half Day : Sept. 24, 2026 and Whole Day: Sept. 30, 2026" 
@@ -329,7 +381,6 @@
                         </div>
                     </div>
 
-                    <!-- 6.D Commutation -->
                     <div class="space-y-2 pt-2 border-t border-slate-200">
                         <label class="block text-xs font-bold text-slate-700 uppercase">6.D Commutation <span class="text-red-500">*</span></label>
                         <div class="flex gap-6">
@@ -347,114 +398,270 @@
                             <i class="fa-solid fa-arrow-left mr-1"></i> Back
                         </button>
                         <button type="button" onclick="app.nextStep()" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow transition flex items-center gap-2 text-sm">
-                            Next: Upload Scanned Form <i class="fa-solid fa-arrow-right"></i>
+                            Next: Preview & Print <i class="fa-solid fa-arrow-right"></i>
                         </button>
                     </div>
                 </div>
 
-                <!-- STEP 4: Scanned Copy Upload & Review -->
+                <!-- STEP 4: Official printable CSC Form No. 6 -->
                 <div class="form-step p-6 space-y-6 hidden" data-step="4">
                     <div class="flex items-center gap-2 border-b pb-2">
                         <span class="bg-blue-600 text-white w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold">4</span>
-                        <h3 class="font-bold text-slate-800">Scanned Copy Upload & Final Review</h3>
+                        <h3 class="font-bold text-slate-800">Official CSC Form No. 6 (Printable)</h3>
                     </div>
+                    <p class="text-sm text-slate-600">This is the final output. It is filled from your answers and printed as Civil Service Form No. 6. Section 7 stays blank for HR / authorized officers.</p>
 
-                    <!-- File Upload Box -->
-                    <div class="space-y-2">
-                        <label class="block text-xs font-bold text-slate-700 uppercase">Upload Scanned Copy / Photo of Signed Form No. 6</label>
-                        <div class="border-2 border-dashed border-slate-300 rounded-xl p-6 text-center bg-slate-50 hover:bg-blue-50/50 transition cursor-pointer relative" onclick="document.getElementById('scanned_file').click()">
-                            <input type="file" id="scanned_file" accept="image/*,.pdf" class="hidden" onchange="app.handleFileSelect(event)">
-                            <div id="upload_placeholder" class="space-y-2">
-                                <i class="fa-solid fa-cloud-arrow-up text-3xl text-blue-600"></i>
-                                <p class="text-sm font-semibold text-slate-700">Click to upload or drag & drop scanned form</p>
-                                <p class="text-xs text-slate-500">Supports PNG, JPG, or PDF (Max 10MB)</p>
-                            </div>
-                            <div id="upload_success" class="hidden space-y-2">
-                                <i class="fa-solid fa-circle-check text-3xl text-emerald-600"></i>
-                                <p class="text-sm font-bold text-emerald-700" id="file_name_display">file_uploaded.png</p>
-                                <p class="text-xs text-slate-500">Click to change file</p>
-                            </div>
-                        </div>
-                    </div>
+                    <div id="print-sheet-host" class="overflow-x-auto bg-slate-200 p-3 rounded-lg"></div>
 
-                    <!-- Summary Review Box -->
-                    <div class="bg-slate-50 rounded-xl p-4 border border-slate-200 space-y-3">
-                        <h4 class="text-xs font-bold text-slate-600 uppercase tracking-wider">Summary of Leave Application</h4>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-                            <div>
-                                <span class="text-xs text-slate-500 block">Applicant Name:</span>
-                                <span class="font-bold text-slate-800" id="review_name">-</span>
-                            </div>
-                            <div>
-                                <span class="text-xs text-slate-500 block">Office / Dept:</span>
-                                <span class="font-bold text-slate-800" id="review_office">-</span>
-                            </div>
-                            <div>
-                                <span class="text-xs text-slate-500 block">Type of Leave:</span>
-                                <span class="font-bold text-blue-600" id="review_leave_type">-</span>
-                            </div>
-                            <div>
-                                <span class="text-xs text-slate-500 block">Working Days & Dates:</span>
-                                <span class="font-bold text-slate-800" id="review_dates">-</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="flex justify-between pt-4">
+                    <div class="flex flex-col sm:flex-row justify-between gap-3 pt-2">
                         <button type="button" onclick="app.prevStep()" class="px-5 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-lg transition text-sm">
                             <i class="fa-solid fa-arrow-left mr-1"></i> Back
                         </button>
-                        <button type="submit" class="px-8 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg shadow-lg transition flex items-center gap-2 text-base">
-                            <i class="fa-solid fa-paper-plane"></i> Submit Leave Application
-                        </button>
+                        <div class="flex gap-3">
+                            <button type="button" onclick="app.printOfficialForm()" class="px-6 py-2.5 bg-slate-800 hover:bg-slate-900 text-white font-semibold rounded-lg shadow transition text-sm">
+                                <i class="fa-solid fa-print mr-1"></i> Print Form
+                            </button>
+                            <button type="submit" class="px-8 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg shadow-lg transition flex items-center gap-2 text-base">
+                                <i class="fa-solid fa-paper-plane"></i> Submit Leave Application
+                            </button>
+                        </div>
                     </div>
                 </div>
 
             </form>
         </div>
 
-        <!-- RECORDS VIEW (Database Simulated List) -->
+        <!-- RECORDS VIEW -->
         <div id="view-records" class="hidden space-y-6">
             <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200 flex justify-between items-center">
                 <div>
                     <h2 class="text-lg font-bold text-slate-800">Submitted Leave Applications</h2>
-                    <p class="text-xs text-slate-500">Stored locally in database mock state. Ready for future backend sync (Supabase / MySQL).</p>
+                    <p class="text-xs text-slate-500">Each record can be reprinted as CSC Form No. 6. Storage follows the connection shown in the header.</p>
                 </div>
                 <button onclick="app.switchTab('form')" class="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg shadow hover:bg-blue-700 transition">
                     <i class="fa-solid fa-plus mr-1"></i> New Application
                 </button>
             </div>
-
-            <div id="records-container" class="space-y-4">
-                <!-- Populated via JavaScript -->
-            </div>
+            <div id="records-container" class="space-y-4"></div>
         </div>
 
     </main>
 
+    <div id="print-sheet-dock">
+        <div id="csc-print-sheet" class="csc-sheet">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; padding:8px 10px 4px;">
+                <div class="tiny">
+                    <div>Civil Service Form No. 6</div>
+                    <div><em>Revised 2020</em></div>
+                </div>
+                <div style="display:flex; gap:10px; align-items:center; text-align:center;">
+                    <img src="assets/pca-logo.png" alt="Philippine Coconut Authority" style="height:48px; width:auto;">
+                    <div>
+                        <div style="font-size:12px; font-weight:700;">Republic of the Philippines</div>
+                        <div style="font-size:12px; font-weight:700;">Philippine Coconut Authority</div>
+                        <div class="tiny">Region 10, Cagayan de Oro City</div>
+                    </div>
+                </div>
+                <div class="tiny" style="border:1px solid #000; padding:10px 8px; min-width:90px; text-align:center;">
+                    Stamp of Date of Receipt
+                </div>
+            </div>
+            <div style="text-align:center; font-size:18px; font-weight:700; letter-spacing:1px; padding:2px 0 8px;">APPLICATION FOR LEAVE</div>
+
+            <table>
+                <tr>
+                    <td class="box-t box-r" style="width:38%; padding:6px 8px;">
+                        <strong>1. OFFICE/DEPARTMENT</strong>
+                        <div class="fill" id="print-office" style="min-height:18px; margin-top:4px;"></div>
+                    </td>
+                    <td class="box-t" style="padding:6px 8px;">
+                        <strong>2. NAME :</strong>
+                        <span class="tiny">(Last)</span>
+                        <span class="tiny" style="margin-left:18%;">(First)</span>
+                        <span class="tiny" style="margin-left:16%;">(Middle)</span>
+                        <div style="display:flex; gap:8px; margin-top:6px; font-weight:700;">
+                            <div id="print-name-last" style="flex:1; border-bottom:1px solid #000; min-height:18px; text-align:center;"></div>
+                            <div id="print-name-first" style="flex:1; border-bottom:1px solid #000; min-height:18px; text-align:center;"></div>
+                            <div id="print-name-middle" style="flex:1; border-bottom:1px solid #000; min-height:18px; text-align:center;"></div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="box-t box-r" style="padding:6px 8px;">
+                        <strong>3. DATE OF FILING</strong>
+                        <span class="fill" id="print-date-filing" style="margin-left:8px;"></span>
+                    </td>
+                    <td class="box-t" style="padding:6px 8px;">
+                        <strong>4. POSITION</strong>
+                        <span class="fill" id="print-position" style="margin-left:8px;"></span>
+                        <strong style="margin-left:24px;">5. SALARY</strong>
+                        <span class="fill" id="print-salary" style="margin-left:8px;"></span>
+                    </td>
+                </tr>
+            </table>
+
+            <div class="box-t" style="text-align:center; font-weight:700; padding:4px;">6. DETAILS OF APPLICATION</div>
+
+            <table>
+                <tr>
+                    <td class="box-t box-r" style="width:55%; padding:6px 8px;">
+                        <div style="font-weight:700; margin-bottom:6px;">6.A TYPE OF LEAVE TO BE AVAILED OF</div>
+                        <div class="tiny" style="line-height:1.45;">
+                            <div><span class="chk" id="chk-vacation">☐</span> Vacation Leave (Sec. 51, Rule XVI, Omnibus Rules Implementing E.O. No. 292)</div>
+                            <div><span class="chk" id="chk-mandatory">☐</span> Mandatory/Forced Leave (Sec. 25, Rule XVI, Omnibus Rules Implementing E.O. No. 292)</div>
+                            <div><span class="chk" id="chk-sick">☐</span> Sick Leave (Sec. 43, Rule XVI, Omnibus Rules Implementing E.O. No. 292)</div>
+                            <div><span class="chk" id="chk-maternity">☐</span> Maternity Leave (R.A. No. 11210 / IRR issued by CSC, DOLE and SSS)</div>
+                            <div><span class="chk" id="chk-paternity">☐</span> Paternity Leave (R.A. No. 8187 / CSC MC No. 71, s. 1998, as amended)</div>
+                            <div><span class="chk" id="chk-spl">☐</span> Special Privilege Leave (Sec. 21, Rule XVI, Omnibus Rules Implementing E.O. No. 292)</div>
+                            <div><span class="chk" id="chk-solo">☐</span> Solo Parent Leave (RA No. 8972 / CSC MC No. 8, s. 2004)</div>
+                            <div><span class="chk" id="chk-study">☐</span> Study Leave (Sec. 68, Rule XVI, Omnibus Rules Implementing E.O. No. 292)</div>
+                            <div><span class="chk" id="chk-vawc">☐</span> 10-Day VAWC Leave (RA No. 9262 / CSC MC No. 15, s. 2005)</div>
+                            <div><span class="chk" id="chk-rehab">☐</span> Rehabilitation Privilege (Sec. 55, Rule XVI, Omnibus Rules Implementing E.O. No. 292)</div>
+                            <div><span class="chk" id="chk-women">☐</span> Special Leave Benefits for Women (RA No. 9710 / CSC MC No. 25, s. 2010)</div>
+                            <div><span class="chk" id="chk-calamity">☐</span> Special Emergency (Calamity) Leave (CSC MC No. 2, s. 2012, as amended)</div>
+                            <div><span class="chk" id="chk-adoption">☐</span> Adoption Leave (R.A. No. 8552)</div>
+                            <div style="margin-top:8px;">Others:</div>
+                            <div class="fill" id="print-others" style="min-height:16px; margin-left:12px;"></div>
+                        </div>
+                    </td>
+                    <td class="box-t" style="padding:6px 8px;">
+                        <div style="font-weight:700; margin-bottom:6px;">6.B DETAILS OF LEAVE</div>
+                        <div class="tiny" style="line-height:1.5;">
+                            <div style="font-style:italic;">In case of Vacation/Special Privilege Leave:</div>
+                            <div><span class="chk" id="chk-within-ph">☐</span> Within the Philippines <span class="fill" id="print-within-ph"></span></div>
+                            <div><span class="chk" id="chk-abroad">☐</span> Abroad (Specify) <span class="fill" id="print-abroad"></span></div>
+                            <div style="font-style:italic; margin-top:6px;">In case of Sick Leave:</div>
+                            <div><span class="chk" id="chk-hospital">☐</span> In Hospital (Specify Illness) <span class="fill" id="print-hospital"></span></div>
+                            <div><span class="chk" id="chk-outpatient">☐</span> Out Patient (Specify Illness) <span class="fill" id="print-outpatient"></span></div>
+                            <div style="font-style:italic; margin-top:6px;">In case of Special Leave Benefits for Women:</div>
+                            <div>(Specify illness) <span class="fill" id="print-women-illness"></span></div>
+                            <div style="font-style:italic; margin-top:6px;">In case of Study Leave:</div>
+                            <div><span class="chk" id="chk-masters">☐</span> Completion of Master's Degree</div>
+                            <div><span class="chk" id="chk-bar">☐</span> BAR/Board Examination Review</div>
+                            <div style="margin-top:6px;">Other purpose:</div>
+                            <div><span class="chk" id="chk-monetization">☐</span> Monetization of Leave Credits</div>
+                            <div><span class="chk" id="chk-terminal">☐</span> Terminal Leave</div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="box-t box-r" style="padding:8px;">
+                        <div style="font-weight:700;">6.C NUMBER OF WORKING DAYS APPLIED FOR</div>
+                        <div class="fill" id="print-working-days" style="min-height:20px; margin:6px 0;"></div>
+                        <div style="font-weight:700;">INCLUSIVE DATES</div>
+                        <div class="fill" id="print-inclusive-dates" style="min-height:28px; margin-top:6px;"></div>
+                    </td>
+                    <td class="box-t" style="padding:8px;">
+                        <div style="font-weight:700;">6.D COMMUTATION</div>
+                        <div class="tiny" style="margin-top:8px;">
+                            <div><span class="chk" id="chk-comm-not">☐</span> Not Requested</div>
+                            <div><span class="chk" id="chk-comm-yes">☐</span> Requested</div>
+                        </div>
+                        <div class="sig-line" style="margin-top:28px;"></div>
+                        <div class="tiny" style="text-align:center;">(Signature of Applicant)</div>
+                    </td>
+                </tr>
+            </table>
+
+            <div class="box-t" style="text-align:center; font-weight:700; padding:4px;">7. DETAILS OF ACTION ON APPLICATION</div>
+
+            <table>
+                <tr>
+                    <td class="box-t box-r" style="width:55%; padding:8px;">
+                        <div style="font-weight:700;">7.A CERTIFICATION OF LEAVE CREDITS</div>
+                        <div class="tiny" style="margin:6px 0;">As of ____________________________</div>
+                        <table class="tiny" style="border:1px solid #000; text-align:center;">
+                            <tr>
+                                <td class="box-r box-b" style="width:34%; padding:3px;"></td>
+                                <td class="box-r box-b" style="padding:3px;">Vacation Leave</td>
+                                <td class="box-b" style="padding:3px;">Sick Leave</td>
+                            </tr>
+                            <tr>
+                                <td class="box-r box-b" style="padding:3px; text-align:left;">Total Earned</td>
+                                <td class="box-r box-b"></td>
+                                <td class="box-b"></td>
+                            </tr>
+                            <tr>
+                                <td class="box-r box-b" style="padding:3px; text-align:left;">Less this application</td>
+                                <td class="box-r box-b"></td>
+                                <td class="box-b"></td>
+                            </tr>
+                            <tr>
+                                <td class="box-r" style="padding:3px; text-align:left;">Balance</td>
+                                <td class="box-r"></td>
+                                <td></td>
+                            </tr>
+                        </table>
+                        <div class="sig-line" style="margin-top:18px;"></div>
+                        <div class="tiny" style="text-align:center;">(Authorized Officer)</div>
+                    </td>
+                    <td class="box-t" style="padding:8px;">
+                        <div style="font-weight:700;">7.B RECOMMENDATION</div>
+                        <div class="tiny" style="margin-top:10px; line-height:1.7;">
+                            <div><span class="chk">☐</span> For approval</div>
+                            <div><span class="chk">☐</span> For disapproval due to:</div>
+                            <div style="border-bottom:1px solid #000; min-height:16px; margin-top:8px;"></div>
+                            <div style="border-bottom:1px solid #000; min-height:16px; margin-top:6px;"></div>
+                        </div>
+                        <div class="sig-line" style="margin-top:22px;"></div>
+                        <div class="tiny" style="text-align:center;">(Authorized Officer)</div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="box-t box-r" style="padding:8px;">
+                        <div style="font-weight:700;">7.C APPROVED FOR:</div>
+                        <div class="tiny" style="margin-top:8px; line-height:1.8;">
+                            <div>________ days with pay</div>
+                            <div>________ days without pay</div>
+                            <div>________ others (Specify)</div>
+                        </div>
+                    </td>
+                    <td class="box-t" style="padding:8px;">
+                        <div style="font-weight:700;">7.D DISAPPROVED DUE TO:</div>
+                        <div style="border-bottom:1px solid #000; min-height:16px; margin-top:12px;"></div>
+                        <div style="border-bottom:1px solid #000; min-height:16px; margin-top:8px;"></div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="box-t" colspan="2" style="padding:10px 8px 14px; text-align:center;">
+                        <div style="font-weight:700; letter-spacing:0.3px;">YVETTE B. GUANZON</div>
+                        <div class="tiny">Regional Manager III</div>
+                        <div style="border-bottom:1px solid #000; width:240px; margin:4px auto 0;"></div>
+                        <div class="tiny">(Authorized Official)</div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
     <!-- Success Modal -->
-    <div id="successModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-md w-full p-6 text-center space-y-4 shadow-2xl animate-in fade-in zoom-in duration-200">
+    <div id="successModal" class="no-print fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 text-center space-y-4 shadow-2xl">
             <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-3xl">
                 <i class="fa-solid fa-check"></i>
             </div>
             <h3 class="text-xl font-bold text-slate-900">Leave Application Submitted!</h3>
-            <p class="text-sm text-slate-600">Your Civil Service Form No. 6 has been successfully recorded along with your scanned document.</p>
+            <p class="text-sm text-slate-600">Your Civil Service Form No. 6 is ready to print.</p>
             <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 text-xs font-mono text-slate-700" id="successTrackingId">
                 Tracking ID: PCA-R10-2026-001
             </div>
-            <div class="flex gap-3 pt-2">
-                <button onclick="app.closeSuccessModal()" class="flex-1 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-lg text-sm transition">
-                    Close
+            <div class="flex flex-col gap-2 pt-2">
+                <button onclick="app.printLastRecord()" class="w-full py-2.5 bg-slate-800 hover:bg-slate-900 text-white font-semibold rounded-lg text-sm transition">
+                    <i class="fa-solid fa-print mr-1"></i> Print CSC Form No. 6
                 </button>
-                <button onclick="app.viewRecords()" class="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg text-sm transition">
-                    View Submissions
-                </button>
+                <div class="flex gap-3">
+                    <button onclick="app.closeSuccessModal()" class="flex-1 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-lg text-sm transition">
+                        Close
+                    </button>
+                    <button onclick="app.viewRecords()" class="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg text-sm transition">
+                        View Submissions
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
-    <footer class="bg-slate-800 text-slate-400 py-4 text-center text-xs">
+    <footer class="no-print bg-slate-800 text-slate-400 py-4 text-center text-xs">
         <p>Civil Service Form No. 6 (Revised 2020) Web Application • Designed for Philippine Coconut Authority Region 10</p>
     </footer>
 
@@ -463,19 +670,134 @@
             constructor() {
                 this.currentStep = 1;
                 this.totalSteps = 4;
-                this.records = JSON.parse(localStorage.getItem('pca_leave_records') || '[]');
-                this.uploadedFileObj = null;
+                this.records = [];
+                this.lastPrintedRecord = null;
+                const cfg = window.APP_CONFIG || {};
+                this.supabaseUrl = (cfg.supabaseUrl || '').replace(/\/$/, '');
+                this.supabaseKey = cfg.supabaseAnonKey || '';
+                this.useSupabase = Boolean(this.supabaseUrl && this.supabaseKey);
                 this.init();
             }
 
-            init() {
+            async init() {
+                this.updateDbStatus();
+                await this.loadRecords();
                 this.updateView();
                 this.updateRecordCount();
-                // Set default filing date to today
                 const today = new Date().toISOString().split('T')[0];
                 const filingDateInput = document.getElementById('date_of_filing');
                 if (filingDateInput && !filingDateInput.value) {
                     filingDateInput.value = today;
+                }
+            }
+
+            updateDbStatus() {
+                const el = document.getElementById('db-status');
+                if (!el) return;
+                el.textContent = this.useSupabase
+                    ? 'Database: Supabase (shared office records)'
+                    : 'Storage: this computer only — add Supabase keys in config.js to share records';
+            }
+
+            supabaseHeaders() {
+                return {
+                    apikey: this.supabaseKey,
+                    Authorization: 'Bearer ' + this.supabaseKey,
+                    'Content-Type': 'application/json'
+                };
+            }
+
+            toDbRow(record) {
+                return {
+                    id: record.id,
+                    office: record.office,
+                    date_filing: record.dateFiling || null,
+                    name_last: record.nameLast,
+                    name_first: record.nameFirst,
+                    name_middle: record.nameMiddle,
+                    full_name: record.name,
+                    position: record.position,
+                    salary: record.salary,
+                    leave_type_raw: record.leaveTypeRaw,
+                    leave_type_others: record.leaveTypeOthers,
+                    leave_type: record.leaveType,
+                    vacation_location: record.vacationLocation,
+                    vacation_ph_address: record.vacationPhAddress,
+                    vacation_abroad: record.vacationAbroad,
+                    sick_location: record.sickLocation,
+                    sick_hospital: record.sickHospital,
+                    sick_outpatient: record.sickOutpatient,
+                    women_illness: record.womenIllness,
+                    study_purpose: record.studyPurpose,
+                    other_purpose: record.otherPurpose,
+                    working_days: record.workingDays,
+                    inclusive_dates: record.inclusiveDates,
+                    commutation: record.commutation
+                };
+            }
+
+            fromDbRow(row) {
+                return {
+                    id: row.id,
+                    office: row.office,
+                    dateFiling: row.date_filing,
+                    nameLast: row.name_last,
+                    nameFirst: row.name_first,
+                    nameMiddle: row.name_middle,
+                    name: row.full_name,
+                    position: row.position,
+                    salary: row.salary,
+                    leaveTypeRaw: row.leave_type_raw,
+                    leaveTypeOthers: row.leave_type_others,
+                    leaveType: row.leave_type,
+                    vacationLocation: row.vacation_location,
+                    vacationPhAddress: row.vacation_ph_address,
+                    vacationAbroad: row.vacation_abroad,
+                    sickLocation: row.sick_location,
+                    sickHospital: row.sick_hospital,
+                    sickOutpatient: row.sick_outpatient,
+                    womenIllness: row.women_illness,
+                    studyPurpose: row.study_purpose,
+                    otherPurpose: row.other_purpose,
+                    workingDays: row.working_days,
+                    inclusiveDates: row.inclusive_dates,
+                    commutation: row.commutation,
+                    timestamp: row.created_at ? new Date(row.created_at).toLocaleString() : ''
+                };
+            }
+
+            async loadRecords() {
+                if (!this.useSupabase) {
+                    this.records = JSON.parse(localStorage.getItem('pca_leave_records') || '[]');
+                    return;
+                }
+                try {
+                    const res = await fetch(
+                        this.supabaseUrl + '/rest/v1/leave_applications?select=*&order=created_at.desc',
+                        { headers: this.supabaseHeaders() }
+                    );
+                    if (!res.ok) throw new Error(await res.text());
+                    const rows = await res.json();
+                    this.records = rows.map(row => this.fromDbRow(row));
+                } catch (err) {
+                    console.error(err);
+                    this.records = JSON.parse(localStorage.getItem('pca_leave_records') || '[]');
+                    this.useSupabase = false;
+                    this.updateDbStatus();
+                    alert('Could not load Supabase records. Using this computer only until config.js is fixed.');
+                }
+            }
+
+            async saveRecord(record) {
+                localStorage.setItem('pca_leave_records', JSON.stringify(this.records));
+                if (!this.useSupabase) return;
+                const res = await fetch(this.supabaseUrl + '/rest/v1/leave_applications', {
+                    method: 'POST',
+                    headers: { ...this.supabaseHeaders(), Prefer: 'return=minimal' },
+                    body: JSON.stringify(this.toDbRow(record))
+                });
+                if (!res.ok) {
+                    throw new Error(await res.text());
                 }
             }
 
@@ -490,26 +812,27 @@
                     recordsView.classList.add('hidden');
                     formBtn.className = 'px-4 py-2 text-sm font-semibold rounded-lg bg-blue-700 text-white transition shadow-sm hover:bg-blue-600';
                     recordsBtn.className = 'px-4 py-2 text-sm font-semibold rounded-lg bg-blue-950 text-blue-200 transition hover:bg-blue-800';
+                    this.placePrintSheet(this.currentStep === 4);
                 } else {
                     formView.classList.add('hidden');
                     recordsView.classList.remove('hidden');
                     recordsBtn.className = 'px-4 py-2 text-sm font-semibold rounded-lg bg-blue-700 text-white transition shadow-sm hover:bg-blue-600';
                     formBtn.className = 'px-4 py-2 text-sm font-semibold rounded-lg bg-blue-950 text-blue-200 transition hover:bg-blue-800';
+                    this.placePrintSheet(false);
                     this.renderRecordsList();
                 }
             }
 
             goToStep(step) {
                 if (step < 1 || step > this.totalSteps) return;
-                
-                // Basic validation before moving forward from step 1
+
                 if (this.currentStep === 1 && step > 1) {
                     const office = document.getElementById('office').value;
                     const lastName = document.getElementById('name_last').value;
                     const firstName = document.getElementById('name_first').value;
                     const position = document.getElementById('position').value;
                     const salary = document.getElementById('salary').value;
-                    
+
                     if (!office || !lastName || !firstName || !position || !salary) {
                         alert('Please fill out all required fields in Step 1 before proceeding.');
                         return;
@@ -520,7 +843,10 @@
                 this.updateView();
 
                 if (this.currentStep === 4) {
-                    this.populateReview();
+                    this.fillPrintSheet(this.getFormData());
+                    this.placePrintSheet(true);
+                } else {
+                    this.placePrintSheet(false);
                 }
             }
 
@@ -532,8 +858,16 @@
                 this.goToStep(this.currentStep - 1);
             }
 
+            placePrintSheet(onScreen) {
+                const sheet = document.getElementById('csc-print-sheet');
+                const host = document.getElementById('print-sheet-host');
+                const dock = document.getElementById('print-sheet-dock');
+                if (!sheet || !host || !dock) return;
+                if (onScreen) host.appendChild(sheet);
+                else dock.appendChild(sheet);
+            }
+
             updateView() {
-                // Show/hide step sections
                 document.querySelectorAll('.form-step').forEach(el => {
                     const stepNum = parseInt(el.getAttribute('data-step'));
                     if (stepNum === this.currentStep) {
@@ -543,7 +877,6 @@
                     }
                 });
 
-                // Update step pills
                 document.querySelectorAll('.step-pill').forEach(btn => {
                     const stepNum = parseInt(btn.getAttribute('data-step'));
                     if (stepNum === this.currentStep) {
@@ -555,13 +888,12 @@
                     }
                 });
 
-                // Progress bar
                 const percentages = ['25%', '50%', '75%', '100%'];
                 const labels = [
                     'Step 1 of 4: Basic Information',
                     'Step 2 of 4: Type of Leave (6.A)',
                     'Step 3 of 4: Specific Details & Dates',
-                    'Step 4 of 4: Scanned Copy & Review'
+                    'Step 4 of 4: Printable CSC Form No. 6'
                 ];
                 document.getElementById('progress-bar').style.width = percentages[this.currentStep - 1];
                 document.getElementById('step-percentage').innerText = `${percentages[this.currentStep - 1]} Completed`;
@@ -575,11 +907,14 @@
                 const othersContainer = document.getElementById('others_container');
                 const vacationSec = document.getElementById('vacation_details_section');
                 const sickSec = document.getElementById('sick_details_section');
+                const womenSec = document.getElementById('women_details_section');
+                const studySec = document.getElementById('study_details_section');
 
-                // Hide all sub-sections initially
                 othersContainer.classList.add('hidden');
                 vacationSec.classList.add('hidden');
                 sickSec.classList.add('hidden');
+                womenSec.classList.add('hidden');
+                studySec.classList.add('hidden');
 
                 if (!selected) return;
 
@@ -590,41 +925,133 @@
                     vacationSec.classList.remove('hidden');
                 } else if (val === 'Sick Leave') {
                     sickSec.classList.remove('hidden');
+                } else if (val === 'Special Leave Benefits for Women') {
+                    womenSec.classList.remove('hidden');
+                } else if (val === 'Study Leave') {
+                    studySec.classList.remove('hidden');
                 }
             }
 
-            handleFileSelect(event) {
-                const file = event.target.files[0];
-                if (file) {
-                    this.uploadedFileObj = file.name;
-                    document.getElementById('upload_placeholder').classList.add('hidden');
-                    const successBox = document.getElementById('upload_success');
-                    successBox.classList.remove('hidden');
-                    document.getElementById('file_name_display').innerText = file.name;
-                }
+            radioValue(name) {
+                const el = document.querySelector(`input[name="${name}"]:checked`);
+                return el ? el.value : '';
             }
 
-            populateReview() {
-                const lastName = document.getElementById('name_last').value.toUpperCase();
-                const firstName = document.getElementById('name_first').value.toUpperCase();
-                const middleName = document.getElementById('name_middle').value.toUpperCase();
-                document.getElementById('review_name').innerText = `${lastName}, ${firstName} ${middleName}`;
-                
-                document.getElementById('review_office').innerText = document.getElementById('office').value;
-                
-                const leaveRadio = document.querySelector('input[name="leave_type"]:checked');
-                let leaveVal = leaveRadio ? leaveRadio.value : 'Not Selected';
-                if (leaveVal === 'Others') {
-                    leaveVal = document.getElementById('leave_type_others').value || 'Others';
-                }
-                document.getElementById('review_leave_type').innerText = leaveVal;
-
-                const days = document.getElementById('working_days_count').value;
-                const dates = document.getElementById('inclusive_dates').value;
-                document.getElementById('review_dates').innerText = `${days} (${dates})`;
+            formatFilingDate(iso) {
+                if (!iso) return '';
+                const d = new Date(iso + 'T00:00:00');
+                const months = ['Jan.', 'Feb.', 'Mar.', 'Apr.', 'May', 'June', 'July', 'Aug.', 'Sept.', 'Oct.', 'Nov.', 'Dec.'];
+                return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
             }
 
-            handleSubmit(event) {
+            getFormData() {
+                const leaveTypeRaw = this.radioValue('leave_type');
+                const leaveTypeOthers = document.getElementById('leave_type_others').value;
+                return {
+                    office: document.getElementById('office').value,
+                    dateFiling: document.getElementById('date_of_filing').value,
+                    nameLast: document.getElementById('name_last').value,
+                    nameFirst: document.getElementById('name_first').value,
+                    nameMiddle: document.getElementById('name_middle').value,
+                    position: document.getElementById('position').value,
+                    salary: document.getElementById('salary').value,
+                    leaveTypeRaw,
+                    leaveTypeOthers,
+                    leaveType: leaveTypeRaw === 'Others' ? (leaveTypeOthers || 'Others') : leaveTypeRaw,
+                    vacationLocation: this.radioValue('vacation_location'),
+                    vacationPhAddress: document.getElementById('vacation_location_address').value,
+                    vacationAbroad: document.getElementById('vacation_abroad_country').value,
+                    sickLocation: this.radioValue('sick_location'),
+                    sickHospital: document.getElementById('sick_hospital_illness').value,
+                    sickOutpatient: document.getElementById('sick_outpatient_illness').value,
+                    womenIllness: document.getElementById('women_illness').value,
+                    studyPurpose: this.radioValue('study_purpose'),
+                    otherPurpose: this.radioValue('other_purpose'),
+                    workingDays: document.getElementById('working_days_count').value,
+                    inclusiveDates: document.getElementById('inclusive_dates').value,
+                    commutation: this.radioValue('commutation') || 'Not Requested'
+                };
+            }
+
+            setCheck(id, on) {
+                const el = document.getElementById(id);
+                if (el) el.textContent = on ? '☑' : '☐';
+            }
+
+            setText(id, value) {
+                const el = document.getElementById(id);
+                if (el) el.textContent = value || '';
+            }
+
+            fillPrintSheet(data) {
+                this.setText('print-office', data.office);
+                this.setText('print-name-last', (data.nameLast || '').toUpperCase());
+                this.setText('print-name-first', (data.nameFirst || '').toUpperCase());
+                this.setText('print-name-middle', (data.nameMiddle || '').toUpperCase());
+                this.setText('print-date-filing', this.formatFilingDate(data.dateFiling));
+                this.setText('print-position', data.position);
+                this.setText('print-salary', data.salary);
+                this.setText('print-working-days', data.workingDays);
+                this.setText('print-inclusive-dates', data.inclusiveDates);
+                this.setText('print-others', data.leaveTypeRaw === 'Others' ? (data.leaveTypeOthers || '').toUpperCase() : '');
+                this.setText('print-within-ph', data.vacationLocation === 'Within the Philippines' ? data.vacationPhAddress : '');
+                this.setText('print-abroad', data.vacationLocation === 'Abroad' ? data.vacationAbroad : '');
+                this.setText('print-hospital', data.sickLocation === 'In Hospital' ? data.sickHospital : '');
+                this.setText('print-outpatient', data.sickLocation === 'Out Patient' ? data.sickOutpatient : '');
+                this.setText('print-women-illness', data.womenIllness);
+
+                const type = data.leaveTypeRaw;
+                this.setCheck('chk-vacation', type === 'Vacation Leave');
+                this.setCheck('chk-mandatory', type === 'Mandatory/Forced Leave');
+                this.setCheck('chk-sick', type === 'Sick Leave');
+                this.setCheck('chk-maternity', type === 'Maternity Leave');
+                this.setCheck('chk-paternity', type === 'Paternity Leave');
+                this.setCheck('chk-spl', type === 'Special Privilege Leave');
+                this.setCheck('chk-solo', type === 'Solo Parent Leave');
+                this.setCheck('chk-study', type === 'Study Leave');
+                this.setCheck('chk-vawc', type === '10-Day VAWC Leave');
+                this.setCheck('chk-rehab', type === 'Rehabilitation Privilege');
+                this.setCheck('chk-women', type === 'Special Leave Benefits for Women');
+                this.setCheck('chk-calamity', type === 'Special Emergency (Calamity) Leave');
+                this.setCheck('chk-adoption', type === 'Adoption Leave');
+
+                this.setCheck('chk-within-ph', data.vacationLocation === 'Within the Philippines');
+                this.setCheck('chk-abroad', data.vacationLocation === 'Abroad');
+                this.setCheck('chk-hospital', data.sickLocation === 'In Hospital');
+                this.setCheck('chk-outpatient', data.sickLocation === 'Out Patient');
+                this.setCheck('chk-masters', data.studyPurpose === "Completion of Master's Degree");
+                this.setCheck('chk-bar', data.studyPurpose === 'BAR/Board Examination Review');
+                this.setCheck('chk-monetization', data.otherPurpose === 'Monetization of Leave Credits');
+                this.setCheck('chk-terminal', data.otherPurpose === 'Terminal Leave');
+                this.setCheck('chk-comm-not', data.commutation === 'Not Requested');
+                this.setCheck('chk-comm-yes', data.commutation === 'Requested');
+            }
+
+            printOfficialForm(data) {
+                this.fillPrintSheet(data || this.getFormData());
+                const sheet = document.getElementById('csc-print-sheet');
+                const dock = document.getElementById('print-sheet-dock');
+                const previousParent = sheet.parentElement;
+                dock.appendChild(sheet);
+                const restore = () => {
+                    if (previousParent) previousParent.appendChild(sheet);
+                    window.removeEventListener('afterprint', restore);
+                };
+                window.addEventListener('afterprint', restore);
+                window.print();
+            }
+
+            printLastRecord() {
+                if (this.lastPrintedRecord) this.printOfficialForm(this.lastPrintedRecord);
+                else this.printOfficialForm();
+            }
+
+            printRecord(id) {
+                const rec = this.records.find(r => r.id === id);
+                if (rec) this.printOfficialForm(rec);
+            }
+
+            async handleSubmit(event) {
                 event.preventDefault();
 
                 const leaveRadio = document.querySelector('input[name="leave_type"]:checked');
@@ -634,42 +1061,32 @@
                     return;
                 }
 
-                let leaveType = leaveRadio.value;
-                if (leaveType === 'Others') {
-                    leaveType = document.getElementById('leave_type_others').value || 'Others';
-                }
-
+                const data = this.getFormData();
                 const record = {
+                    ...data,
                     id: 'PCA-R10-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random() * 9000),
-                    office: document.getElementById('office').value,
-                    dateFiling: document.getElementById('date_of_filing').value,
-                    name: `${document.getElementById('name_last').value}, ${document.getElementById('name_first').value} ${document.getElementById('name_middle').value}`,
-                    position: document.getElementById('position').value,
-                    salary: document.getElementById('salary').value,
-                    leaveType: leaveType,
-                    workingDays: document.getElementById('working_days_count').value,
-                    inclusiveDates: document.getElementById('inclusive_dates').value,
-                    commutation: document.querySelector('input[name="commutation"]:checked').value,
-                    fileName: this.uploadedFileObj || 'No file attached',
+                    name: `${data.nameLast}, ${data.nameFirst} ${data.nameMiddle}`.trim(),
                     timestamp: new Date().toLocaleString()
                 };
 
                 this.records.unshift(record);
-                localStorage.setItem('pca_leave_records', JSON.stringify(this.records));
+                this.lastPrintedRecord = record;
                 this.updateRecordCount();
 
-                // Show success modal
+                try {
+                    await this.saveRecord(record);
+                } catch (err) {
+                    console.error(err);
+                    alert('Saved on this computer, but Supabase did not accept the record. Check config.js and the SQL schema.');
+                }
+
                 document.getElementById('successTrackingId').innerText = `Tracking ID: ${record.id}`;
                 document.getElementById('successModal').classList.remove('hidden');
             }
 
             closeSuccessModal() {
                 document.getElementById('successModal').classList.add('hidden');
-                // Reset form and go to step 1
                 document.getElementById('leaveForm').reset();
-                this.uploadedFileObj = null;
-                document.getElementById('upload_placeholder').classList.remove('hidden');
-                document.getElementById('upload_success').classList.add('hidden');
                 this.goToStep(1);
             }
 
@@ -689,7 +1106,7 @@
                         <div class="bg-white p-8 rounded-xl shadow-sm text-center border border-slate-200">
                             <i class="fa-solid fa-folder-open text-4xl text-slate-300 mb-3"></i>
                             <p class="text-slate-600 font-medium">No leave applications filed yet.</p>
-                            <p class="text-xs text-slate-400 mt-1">Complete the multi-step form to submit and test database storage.</p>
+                            <p class="text-xs text-slate-400 mt-1">Complete the multi-step form to submit and print CSC Form No. 6.</p>
                         </div>
                     `;
                     return;
@@ -702,23 +1119,24 @@
                                 <span class="bg-blue-100 text-blue-800 text-xs font-mono font-bold px-2.5 py-1 rounded-md">${rec.id}</span>
                                 <span class="text-xs text-slate-500 ml-2"><i class="fa-regular fa-clock mr-1"></i> ${rec.timestamp}</span>
                             </div>
-                            <span class="bg-emerald-100 text-emerald-800 text-xs font-semibold px-2.5 py-1 rounded-full"><i class="fa-solid fa-check-circle mr-1"></i> Pending Approval</span>
+                            <button type="button" onclick="app.printRecord('${rec.id}')" class="px-3 py-1.5 bg-slate-800 text-white text-xs font-semibold rounded-lg hover:bg-slate-900">
+                                <i class="fa-solid fa-print mr-1"></i> Print CSC Form
+                            </button>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                             <div>
                                 <span class="text-xs text-slate-500 block">Applicant Name:</span>
-                                <span class="font-bold text-slate-800">${rec.name}</span>
-                                <span class="text-xs text-slate-500 block mt-1">Position: ${rec.position}</span>
+                                <span class="font-bold text-slate-800">${rec.name || ((rec.nameLast || '') + ', ' + (rec.nameFirst || ''))}</span>
+                                <span class="text-xs text-slate-500 block mt-1">Position: ${rec.position || ''}</span>
                             </div>
                             <div>
                                 <span class="text-xs text-slate-500 block">Type of Leave:</span>
-                                <span class="font-bold text-blue-600">${rec.leaveType}</span>
-                                <span class="text-xs text-slate-500 block mt-1">Days: ${rec.workingDays}</span>
+                                <span class="font-bold text-blue-600">${rec.leaveType || rec.leaveTypeRaw || ''}</span>
+                                <span class="text-xs text-slate-500 block mt-1">Days: ${rec.workingDays || ''}</span>
                             </div>
                             <div>
                                 <span class="text-xs text-slate-500 block">Inclusive Dates:</span>
-                                <span class="font-semibold text-slate-700">${rec.inclusiveDates}</span>
-                                <span class="text-xs text-slate-500 block mt-1"><i class="fa-solid fa-paperclip mr-1 text-slate-400"></i> ${rec.fileName}</span>
+                                <span class="font-semibold text-slate-700">${rec.inclusiveDates || ''}</span>
                             </div>
                         </div>
                     </div>
